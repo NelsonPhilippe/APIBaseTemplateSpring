@@ -2,11 +2,11 @@ package fr.nelson.apibasetemplate.controllers.users;
 
 public class UsersForm {
 
-    private String mail;
+    private String email;
     private String password;
 
-    public String getMail() {
-        return mail;
+    public String getEmail() {
+        return email;
     }
 
     public String getPassword() {

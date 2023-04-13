@@ -1,5 +1,7 @@
 package fr.nelson.apibasetemplate.services.users;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import fr.nelson.apibasetemplate.controllers.users.forms.UsersForm;
 import fr.nelson.apibasetemplate.entities.UsersEntity;
 import fr.nelson.apibasetemplate.exceptions.HttpException;
@@ -7,6 +9,7 @@ import fr.nelson.apibasetemplate.repositories.users.UsersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -62,6 +65,58 @@ public class UsersService {
                 return "Password successfully updated";
             }catch (Exception e) {
                 throw new HttpException("Saving in database failed", 400);
+            }
+        }
+        throw new HttpException("User not found", 404);
+    }
+
+    public String deleteUser(String id) throws HttpException {
+        Optional<UsersEntity> usersEntity = usersRepository.findById(id);
+
+        if(usersEntity.isPresent()){
+            try{
+                usersRepository.delete(usersEntity.get());
+                return "User successfully deleted";
+            }catch (Exception e) {
+                throw new HttpException("Saving in database failed", 400);
+            }
+        }
+        throw new HttpException("User not found", 404);
+    }
+
+    public JsonElement getAllUsers() throws HttpException {
+        try{
+            List<UsersEntity> entities = usersRepository.findAll();
+            Gson gson = new Gson();
+            return gson.toJsonTree(entities);
+        }catch (Exception e) {
+            throw new HttpException("Get in database failed", 400);
+        }
+    }
+
+    public JsonElement getUserById(String id) throws HttpException {
+        Optional<UsersEntity> usersEntity = usersRepository.findById(id);
+
+        if(usersEntity.isPresent()){
+            try{
+                Gson gson = new Gson();
+                return gson.toJsonTree(usersEntity.get());
+            }catch (Exception e) {
+                throw new HttpException("Get in database failed", 400);
+            }
+        }
+        throw new HttpException("User not found", 404);
+    }
+
+    public JsonElement getUserByMail(String mail) throws HttpException {
+        Optional<UsersEntity> usersEntity = usersRepository.findByEmail(mail);
+
+        if(usersEntity.isPresent()){
+            try{
+                Gson gson = new Gson();
+                return gson.toJsonTree(usersEntity.get());
+            }catch (Exception e) {
+                throw new HttpException("Get in database failed", 400);
             }
         }
         throw new HttpException("User not found", 404);

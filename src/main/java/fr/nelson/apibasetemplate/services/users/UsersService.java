@@ -1,6 +1,6 @@
 package fr.nelson.apibasetemplate.services.users;
 
-import fr.nelson.apibasetemplate.controllers.users.UsersForm;
+import fr.nelson.apibasetemplate.controllers.users.forms.UsersForm;
 import fr.nelson.apibasetemplate.entities.UsersEntity;
 import fr.nelson.apibasetemplate.exceptions.HttpException;
 import fr.nelson.apibasetemplate.repositories.users.UsersRepository;
@@ -32,4 +32,33 @@ public class UsersService {
         return "User successfully registered";
     }
 
+    public String updateEmail(String id, String newMail) throws HttpException {
+        Optional<UsersEntity> usersEntity = usersRepository.findById(id);
+
+        if(usersEntity.isPresent()){
+            try{
+                usersEntity.get().setEmail(newMail);
+                usersRepository.save(usersEntity.get());
+                return "Email successfully updated";
+            }catch (Exception e) {
+                throw new HttpException("Saving in database failed", 400);
+            }
+        }
+        throw new HttpException("User not found", 404);
+    }
+
+    public String updatePassword(String id, String newPassword) throws HttpException {
+        Optional<UsersEntity> usersEntity = usersRepository.findById(id);
+
+        if(usersEntity.isPresent()){
+            try{
+                usersEntity.get().setPassword(newPassword);
+                usersRepository.save(usersEntity.get());
+                return "Password successfully updated";
+            }catch (Exception e) {
+                throw new HttpException("Saving in database failed", 400);
+            }
+        }
+        throw new HttpException("User not found", 404);
+    }
 }

@@ -1,4 +1,4 @@
-package fr.nelson.apibasetemplate.controllers.users;
+package fr.nelson.apibasetemplate.controllers.users.forms;
 
 public class UsersForm {
 

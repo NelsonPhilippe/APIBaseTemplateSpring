@@ -6,6 +6,7 @@ import fr.nelson.apibasetemplate.controllers.users.forms.UsersForm;
 import fr.nelson.apibasetemplate.exceptions.HttpException;
 import fr.nelson.apibasetemplate.services.users.UsersService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -16,30 +17,32 @@ public class UsersController {
     private UsersService usersService;
 
     @PostMapping("register")
-    public String register(@RequestBody() UsersForm usersForm) {
+    public ResponseEntity<String> register(@RequestBody() UsersForm usersForm) {
         try{
-            System.out.println(usersForm.getPassword());
-            return this.usersService.register(usersForm);
+            String message = this.usersService.register(usersForm);
+            return new ResponseEntity<>(message, null, 200);
         }catch (HttpException e) {
-            return e.getMessage();
+            return new ResponseEntity<>(e.getMessage(), null, e.getStatusCode());
         }
     }
 
     @PatchMapping("update/email/{id}")
-    public String updateEmail(@PathVariable String id, @RequestBody() EmailForm newMail) {
+    public ResponseEntity<String> updateEmail(@PathVariable String id, @RequestBody() EmailForm newMail) {
         try{
-            return this.usersService.updateEmail(id, newMail.getEmail());
+            String message = this.usersService.updateEmail(id, newMail.getEmail());
+            return new ResponseEntity<>(message, null, 200);
         } catch (HttpException e) {
-            return e.getMessage();
+            return new ResponseEntity<>(e.getMessage(), null, e.getStatusCode());
         }
     }
 
     @PatchMapping("update/password/{id}")
-    public String updatePassword(@PathVariable String id, @RequestBody() PasswordForm newPassword) {
+    public ResponseEntity<String> updatePassword(@PathVariable String id, @RequestBody() PasswordForm newPassword) {
         try{
-            return this.usersService.updatePassword(id, newPassword.getPassword());
+            String message = this.usersService.updatePassword(id, newPassword.getOldPassword(), newPassword.getPassword());
+            return new ResponseEntity<>(message, null, 200);
         } catch (HttpException e) {
-            return e.getMessage();
+            return new ResponseEntity<>(e.getMessage(), null, e.getStatusCode());
         }
     }
 }

@@ -7,6 +7,7 @@ import fr.nelson.apibasetemplate.repositories.users.UsersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -47,10 +48,14 @@ public class UsersService {
         throw new HttpException("User not found", 404);
     }
 
-    public String updatePassword(String id, String newPassword) throws HttpException {
+    public String updatePassword(String id, String oldPassword, String newPassword) throws HttpException {
         Optional<UsersEntity> usersEntity = usersRepository.findById(id);
 
         if(usersEntity.isPresent()){
+
+            if(!Objects.equals(oldPassword, usersEntity.get().getPassword()))
+                throw new HttpException("Old password is not correct", 400);
+
             try{
                 usersEntity.get().setPassword(newPassword);
                 usersRepository.save(usersEntity.get());

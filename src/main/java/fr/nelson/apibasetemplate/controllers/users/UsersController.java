@@ -18,6 +18,16 @@ public class UsersController {
     @Autowired
     private UsersService usersService;
 
+    @PostMapping("login")
+    public ResponseEntity<String> login(@RequestBody() UsersForm usersForm) {
+        try{
+            String message = this.usersService.login(usersForm);
+            return new ResponseEntity<>(message, null, 200);
+        }catch (HttpException e) {
+            return new ResponseEntity<>(e.getMessage(), null, e.getStatusCode());
+        }
+    }
+
     @PostMapping("register")
     public ResponseEntity<String> register(@RequestBody() UsersForm usersForm) {
         try{

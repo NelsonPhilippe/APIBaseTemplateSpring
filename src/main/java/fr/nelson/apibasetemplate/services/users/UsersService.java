@@ -7,17 +7,37 @@ import fr.nelson.apibasetemplate.entities.UsersEntity;
 import fr.nelson.apibasetemplate.exceptions.HttpException;
 import fr.nelson.apibasetemplate.repositories.users.UsersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
-public class UsersService {
+public class UsersService  {
 
     @Autowired
     private UsersRepository usersRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
+
 
     public String register(UsersForm usersForm) throws HttpException {
         Optional<UsersEntity> usersEntity = usersRepository.findByEmail(usersForm.getEmail());
@@ -28,12 +48,26 @@ public class UsersService {
         }
 
         try{
-            usersRepository.insert(new UsersEntity(usersForm.getEmail(), usersForm.getPassword()));
+            usersRepository.insert(new UsersEntity(usersForm.getEmail(), passwordEncoder.encode(usersForm.getPassword())));
         }catch (Exception e){
             System.out.println("fail saved");
             throw new HttpException("Saving in database failed", 400);
         }
         return "User successfully registered";
+    }
+
+    public String login(UsersForm usersForm) throws HttpException {
+        Optional<UsersEntity> usersEntity = usersRepository.findByEmail(usersForm.getEmail());
+
+        if(usersEntity.isPresent()){
+            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+                    usersForm.getEmail(), usersForm.getPassword()));
+
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            return "User successfully logged";
+        }
+        throw new HttpException("User not found", 404);
     }
 
     public String updateEmail(String id, String newMail) throws HttpException {
